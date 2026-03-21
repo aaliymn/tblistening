@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Поехали</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 100px;
+    }
+
+    .container {
+        text-align: center;
+        transition: transform 0.8s ease;
+    }
+
+    .container.move-up {
+        transform: translateY(-40px);
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    input {
+        padding: 18px;
+        font-size: 20px;
+        width: 280px;
+        text-align: center;
+        border-radius: 14px;
+        border: 1px solid #ccc;
+        outline: none;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        transition: 0.3s;
+    }
+
+    input:focus {
+        border-color: #888;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    }
+
+    /* ❗ hata durumu */
+    .error {
+        border-color: #e74c3c !important;
+        background-color: #fdecea;
+        color: #c0392b;
+    }
+
+    /* 📳 shake animasyonu */
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        20% { transform: translateX(-6px); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-6px); }
+        80% { transform: translateX(6px); }
+        100% { transform: translateX(0); }
+    }
+
+    .shake {
+        animation: shake 0.3s;
+    }
+
+    .viewer {
+        margin-top: 25px;
+        width: 400px;
+        height: 450px;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container" id="container">
+    <h1>Поехали</h1>
+    <input type="text" id="searchBox" placeholder="Materyal numarası (1-75)">
+    <iframe id="viewer" class="viewer"></iframe>
+</div>
+
+<script>
+function calculateLink(tb) {
+
+    if (tb === 13) return 90;
+    if (tb === 15) return 92;
+    if (tb === 16) return 93;
+    if (tb === 17) return 91;
+    if (tb === 70) return 167;
+
+    if (tb <= 24) return tb + 76;
+    else if (tb <= 69) return tb + 79;
+    else return tb + 78;
+}
+
+const input = document.getElementById("searchBox");
+const iframe = document.getElementById("viewer");
+const container = document.getElementById("container");
+
+input.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+
+        let tb = parseInt(this.value.trim());
+
+        if (!isNaN(tb) && tb >= 1 && tb <= 75) {
+
+            // hata stilini kaldır
+            input.classList.remove("error");
+
+            let urlNumber = calculateLink(tb);
+            let url = "https://l.zlat.spb.ru/les/" + urlNumber + "/";
+
+            iframe.src = url;
+            iframe.style.display = "block";
+
+            container.classList.add("move-up");
+
+        } else {
+
+            // ❗ hata durumu
+            input.classList.add("error");
+            input.classList.add("shake");
+
+            input.value = "";
+            input.placeholder = "Geçerli numara gir (1-75)";
+
+            // animasyon bitince shake class kaldır
+            setTimeout(() => {
+                input.classList.remove("shake");
+            }, 400);
+        }
+    }
+});
+</script>
+
+</body>
+</html>
