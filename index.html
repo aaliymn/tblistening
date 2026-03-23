@@ -1,80 +1,154 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <title>Поехали</title>
 
 <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 100px;
+}
+
+.container {
+    text-align: center;
+    transition: transform 0.8s ease;
+}
+
+.container.move-up {
+    transform: translateY(-40px);
+}
+
+h1 {
+    margin-bottom: 20px;
+    user-select: none;
+}
+
+/* search */
+.search-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 90%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+input {
+    padding: 18px;
+    width: 100%;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 14px;
+    border: 1px solid #ccc;
+    outline: none;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.search-btn {
+    padding: 0 18px;
+    font-size: 20px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background-color: #5dade2;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* iframe container */
+.viewer-wrapper {
+    margin-top: 25px;
+    width: 95%;
+    max-width: 420px;
+    overflow: hidden;
+    height: 0;
+    background: transparent; /* ✅ saydam */
+    transition: height 1s ease; /* ✅ yarı hızına düşürüldü */
+}
+
+/* açık hali */
+.viewer-wrapper.open {
+    height: 450px;
+}
+
+iframe {
+    width: 100%;
+    height: 450px;
+    border: none;
+    border-radius: 12px;
+}
+
+/* nav */
+.nav-buttons {
+    margin-top: 15px;
+    display: none;
+    justify-content: center;
+    gap: 15px;
+}
+
+.nav-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #58d68d;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* shake */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-6px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.4s;
+}
+
+.error {
+    border-color: #e74c3c;
+    background-color: #fdecea;
+    color: #c0392b;
+}
+@media (max-width: 480px) {
+
     body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background-color: #f5f5f5;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding-top: 100px;
-    }
-
-    .container {
-        text-align: center;
-        transition: transform 0.8s ease;
-    }
-
-    .container.move-up {
-        transform: translateY(-40px);
+        padding-top: 60px;
     }
 
     h1 {
-        margin-bottom: 20px;
+        font-size: 22px;
     }
 
     input {
-        padding: 18px;
-        font-size: 20px;
-        width: 280px;
-        text-align: center;
-        border-radius: 14px;
-        border: 1px solid #ccc;
-        outline: none;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-        transition: 0.3s;
+        padding: 16px;
+        font-size: 18px;
     }
 
-    input:focus {
-        border-color: #888;
-        box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    .search-btn {
+        font-size: 18px;
+        padding: 0 14px;
     }
 
-    /* ❗ hata durumu */
-    .error {
-        border-color: #e74c3c !important;
-        background-color: #fdecea;
-        color: #c0392b;
+    .viewer-wrapper.open {
+        height: 350px; /* mobilde daha kısa */
     }
 
-    /* 📳 shake animasyonu */
-    @keyframes shake {
-        0% { transform: translateX(0); }
-        20% { transform: translateX(-6px); }
-        40% { transform: translateX(6px); }
-        60% { transform: translateX(-6px); }
-        80% { transform: translateX(6px); }
-        100% { transform: translateX(0); }
+    iframe {
+        height: 350px;
     }
-
-    .shake {
-        animation: shake 0.3s;
-    }
-
-    .viewer {
-        margin-top: 25px;
-        width: 400px;
-        height: 450px;
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        display: none;
-    }
+}
 </style>
 </head>
 
@@ -82,11 +156,25 @@
 
 <div class="container" id="container">
     <h1>Поехали</h1>
-    <input type="text" id="searchBox" placeholder="Materyal numarası (1-75)">
-    <iframe id="viewer" class="viewer"></iframe>
+
+    <div class="search-wrapper">
+        <input type="text" id="searchBox" placeholder="(1-75)">
+        <button class="search-btn" onclick="handleSearch()">></button>
+    </div>
+
+    <div class="viewer-wrapper" id="viewerWrapper">
+        <iframe id="viewer"></iframe>
+    </div>
+
+    <div class="nav-buttons" id="navButtons">
+        <button onclick="prevTB()">Previous</button>
+        <button onclick="nextTB()">Next</button>
+    </div>
 </div>
 
 <script>
+let currentTB = null;
+
 function calculateLink(tb) {
 
     if (tb === 13) return 90;
@@ -100,44 +188,59 @@ function calculateLink(tb) {
     else return tb + 78;
 }
 
-const input = document.getElementById("searchBox");
-const iframe = document.getElementById("viewer");
-const container = document.getElementById("container");
+function openTB(tb) {
+    currentTB = tb;
 
-input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
+    let wrapper = document.getElementById("viewerWrapper");
+    let iframe = document.getElementById("viewer");
 
-        let tb = parseInt(this.value.trim());
+    // önce kapan (yukarı doğru)
+    wrapper.classList.remove("open");
 
-        if (!isNaN(tb) && tb >= 1 && tb <= 75) {
+    setTimeout(() => {
+        let urlNumber = calculateLink(tb);
+        iframe.src = "https://l.zlat.spb.ru/les/" + urlNumber + "/";
 
-            // hata stilini kaldır
-            input.classList.remove("error");
+        // sonra aç (aşağı doğru)
+        wrapper.classList.add("open");
 
-            let urlNumber = calculateLink(tb);
-            let url = "https://l.zlat.spb.ru/les/" + urlNumber + "/";
+    }, 300);
 
-            iframe.src = url;
-            iframe.style.display = "block";
+    document.getElementById("navButtons").style.display = "flex";
+    document.getElementById("container").classList.add("move-up");
+}
 
-            container.classList.add("move-up");
+function handleSearch() {
+    let input = document.getElementById("searchBox");
+    let tb = parseInt(input.value.trim());
 
-        } else {
+    if (!isNaN(tb) && tb >= 1 && tb <= 75) {
+        input.classList.remove("error");
+        openTB(tb);
+    } else {
+        input.classList.add("error");
+        input.classList.add("shake");
 
-            // ❗ hata durumu
-            input.classList.add("error");
-            input.classList.add("shake");
+        input.value = "";
+        input.placeholder = "Geçersiz!(1-75)";
 
-            input.value = "";
-            input.placeholder = "Geçerli numara gir (1-75)";
-
-            // animasyon bitince shake class kaldır
-            setTimeout(() => {
-                input.classList.remove("shake");
-            }, 400);
-        }
+        setTimeout(() => {
+            input.classList.remove("shake");
+        }, 400);
     }
+}
+
+document.getElementById("searchBox").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") handleSearch();
 });
+
+function nextTB() {
+    if (currentTB < 75) openTB(currentTB + 1);
+}
+
+function prevTB() {
+    if (currentTB > 1) openTB(currentTB - 1);
+}
 </script>
 
 </body>
